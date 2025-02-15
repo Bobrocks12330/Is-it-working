@@ -10,3 +10,5 @@ how about u put ur script so i can see what it is and how it works
 
 ok
 idk how to do it 
+
+press the + button and upload a file then press ok
