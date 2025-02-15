@@ -1,0 +1,1637 @@
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+
+local player = Players.LocalPlayer
+local userId = player.UserId
+
+-- GitHub RAW link to your JSON whitelist
+local whitelistUrl = "https://raw.githubusercontent.com/Bobrocks12330/LPISHITTER/main/Whitelist"
+
+-- Fetch whitelist data
+local success, response = pcall(function()
+    return HttpService:JSONDecode(game:HttpGet(whitelistUrl))
+end)
+
+-- Check if the request was successful and valid
+if not success or type(response) ~= "table" or not response.whitelist then
+    warn("Failed to load whitelist. Access denied.")
+    player:Kick("Whitelist could not be verified. Try again later.")
+    return
+end
+
+-- Check if the player is in the whitelist
+if not table.find(response.whitelist, userId) then
+    warn("Player not whitelisted: " .. userId)
+    player:Kick("You are not whitelisted to use this script.")
+    return
+end
+
+-- Continue with the rest of your script
+print("Player is whitelisted. Loading GUI...")
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Remove existing GUI
+if playerGui:FindFirstChild("CustomGui") then
+    playerGui:FindFirstChild("CustomGui"):Destroy()
+end
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CustomGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Main Frame (Taller)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 160, 0, 200) -- Increased height
+frame.Position = UDim2.new(0.5, -80, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.Parent = screenGui
+
+
+-- UI Corner (Smooth Rounded Edges)
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 8)
+frameCorner.Parent = frame
+
+-- Top Bar (Draggable Area)
+local topBar = Instance.new("Frame")
+topBar.Size = UDim2.new(1, 0, 0, 40)
+topBar.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+topBar.BorderSizePixel = 0
+topBar.Parent = frame
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, -60, 1, 0)
+title.Position = UDim2.new(0, 10, 0, 0)
+title.Text = "LpiShitter"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 14
+title.Font = Enum.Font.GothamBold
+title.BackgroundTransparency = 1
+title.TextXAlignment = Enum.TextXAlignment.Left
+title.Parent = topBar
+
+-- Close Button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 1, 0)
+closeButton.Position = UDim2.new(1, -35, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.TextSize = 14
+closeButton.Font = Enum.Font.GothamBold
+closeButton.BackgroundTransparency = 1
+closeButton.Parent = topBar
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Expand/Collapse Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 30, 1, 0)
+toggleButton.Position = UDim2.new(1, -70, 0, 0)
+toggleButton.Text = "▼"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.TextSize = 14
+toggleButton.Font = Enum.Font.GothamBold
+toggleButton.BackgroundTransparency = 1
+toggleButton.Parent = topBar
+
+
+-- Scroll List (Taller)
+local buttonContainer = Instance.new("ScrollingFrame")
+buttonContainer.Size = UDim2.new(1, -10, 1, -50) -- Adjusted for better spacing
+buttonContainer.Position = UDim2.new(0, 5, 0, 45) -- Proper positioning
+buttonContainer.BackgroundTransparency = 1
+buttonContainer.BorderSizePixel = 0
+buttonContainer.CanvasSize = UDim2.new(0, 0, 0, 0)
+buttonContainer.ScrollBarThickness = 0
+buttonContainer.ScrollingDirection = Enum.ScrollingDirection.Y
+buttonContainer.Parent = frame
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.Padding = UDim.new(0, 8) -- Adjusted padding for spacing
+uiListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Parent = buttonContainer
+
+-- Create Button Function
+local function cb(text, callback)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -10, 0, 30) -- Full width within container
+    button.Text = text
+    button.TextSize = 12
+    button.Font = Enum.Font.GothamBold
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Parent = buttonContainer
+
+    local buttonCorner = Instance.new("UICorner")
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+    buttonCorner.Parent = button
+
+    -- Click Event
+    button.MouseButton1Click:Connect(callback)
+
+    -- Adjust scrolling size
+    buttonContainer.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 10)
+end
+
+-- "Get F3X" Button
+cb("Get F3X", function() 
+    local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:WaitForChild("Backpack")
+local StarterGear = LocalPlayer:WaitForChild("StarterGear")
+
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Humanoid = Character:WaitForChild("Humanoid")
+
+local originalPosition = HumanoidRootPart.Position
+
+-- Function to send notifications
+local function sendNotification(title, text, duration)
+    StarterGui:SetCore("SendNotification", {
+        Title = title;
+        Text = text;
+        Duration = duration;
+    })
+end
+
+-- Function to check if F3X is in Backpack or StarterGear
+local function hasF3X()
+    for _, item in ipairs(Backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name == "F3X" then
+            return true
+        end
+    end
+    for _, item in ipairs(StarterGear:GetChildren()) do
+        if item:IsA("Tool") and item.Name == "F3X" then
+            return true
+        end
+    end
+    return false
+end
+
+-- Check if player already has F3X
+if hasF3X() then
+    sendNotification("Success", "F3X is already in your inventory!", 5)
+    return
+end
+
+-- If F3X is not found, start searching
+sendNotification("Script Started", "Waiting for F3X to appear...", 5)
+Humanoid.WalkSpeed = 0
+local foundF3X = false
+local startTime = tick()
+
+while not foundF3X do
+    -- Movement sequence to attempt getting F3X
+    local positions = {
+        CFrame.new(11.498, 3.2, -116.658),
+        CFrame.new(10.498, 3.2, -116.658),
+        CFrame.new(11.498, 4.2, -116.658),
+        CFrame.new(11.498, 3.2, -116.658),
+        CFrame.new(10.498, -2.2, -116.658),
+        CFrame.new(11.498, -1.2, -116.658)
+    }
+
+    for _, pos in ipairs(positions) do
+        HumanoidRootPart.CFrame = pos
+        task.wait(0.01)
+    end
+
+    -- Check again if F3X is acquired
+    if hasF3X() then
+        foundF3X = true
+        break
+    end
+
+    -- Timeout after 10 seconds
+    if tick() - startTime > 10 then
+        sendNotification("Script Failed", "F3X not found after 10 seconds.", 5)
+        break
+    end
+end
+
+-- Restore movement & position
+Humanoid.WalkSpeed = 16
+Character:MoveTo(originalPosition)
+
+-- Success Notification
+if foundF3X then
+    sendNotification("Success", "F3X found in inventory!", 5)
+end 
+end)
+
+cb("Go to Island", function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+
+    if hrp then
+        hrp.CFrame = CFrame.new(32, 4.75, -84)
+    end
+end)
+
+-- Expand/Collapse Animation Fix
+local isCollapsed = true
+local collapsedSize = UDim2.new(0, 160, 0, 40)  -- Collapsed height
+local expandedSize = UDim2.new(0, 160, 0, 200) -- Expanded height
+
+toggleButton.MouseButton1Click:Connect(function()
+    if isCollapsed then
+        buttonContainer.Visible = true
+        TweenService:Create(frame, TweenInfo.new(0.3), {Size = expandedSize}):Play()
+        toggleButton.Text = "▲"
+    else
+        TweenService:Create(frame, TweenInfo.new(0.3), {Size = collapsedSize}):Play()
+        toggleButton.Text = "▼"
+        task.wait(0.3)
+        buttonContainer.Visible = false
+    end
+    isCollapsed = not isCollapsed
+end) 
+-- **Smooth Mobile & Desktop Dragging**
+local dragging, startPos, startMousePos
+
+topBar.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        startPos = frame.Position
+        startMousePos = input.Position
+        input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
+    end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if dragging then
+        local delta = input.Position - startMousePos
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+
+
+
+
+
+
+
+
+
+ 
+
+cb("Kick Player", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("KickGui") then
+        playerGui:FindFirstChild("KickGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "KickGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Username, 'others', or 'all'"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Execute Kick"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function kick(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            Delete(target, Tool)
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    button.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+
+        if targetName == "all" then
+            for _, target in pairs(players:GetPlayers()) do kick(target) end
+        elseif targetName == "others" then
+            for _, target in pairs(players:GetPlayers()) do if target ~= player then kick(target) end end
+        else
+            for _, target in pairs(players:GetPlayers()) do
+                if target.Name:lower():sub(1, #targetName) == targetName then kick(target) end
+            end
+        end
+
+        screenGui:Destroy() -- Close GUI after execution
+    end)
+end)
+
+cb("Ban Player", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("BanGui") then
+        playerGui:FindFirstChild("BanGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "BanGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Username, 'others', or 'all'"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Execute Ban"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    -- F3X Ban Function
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function ban(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            Delete(target, Tool)
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    -- Ban List (Persistent)
+    local bannedPlayers = {}
+
+    -- Username Autocomplete
+    local function findClosestMatch(inputName)
+        inputName = inputName:lower()
+        for _, target in pairs(players:GetPlayers()) do
+            if target.Name:lower():sub(1, #inputName) == inputName then
+                return target
+            end
+        end
+        return nil
+    end
+
+    -- Button Click Event
+    button.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+
+        if targetName == "all" then
+            for _, target in pairs(players:GetPlayers()) do
+                bannedPlayers[target.UserId] = true
+                ban(target)
+            end
+        elseif targetName == "others" then
+            for _, target in pairs(players:GetPlayers()) do
+                if target ~= player then
+                    bannedPlayers[target.UserId] = true
+                    ban(target)
+                end
+            end
+        else
+            local targetPlayer = findClosestMatch(targetName)
+            if targetPlayer then
+                bannedPlayers[targetPlayer.UserId] = true
+                ban(targetPlayer)
+            end
+        end
+
+        -- Ban Persistence (Kicks on Rejoin)
+        players.PlayerAdded:Connect(function(newPlayer)
+            if bannedPlayers[newPlayer.UserId] then
+                ban(newPlayer)
+            end
+        end)
+
+        screenGui:Destroy() -- Close GUI after execution
+    end)
+end)
+
+cb("Lock Server", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+
+    -- Toggle variable
+    _G.ServerLocked = not _G.ServerLocked
+
+    -- Custom Kick Function
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function kick(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            Delete(target, Tool)
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    if _G.ServerLocked then
+        -- Notify that the server is now locked
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Server Locked",
+            Text = "New players will be kicked!",
+            Duration = 5
+        })
+
+        -- Kick new players when they join using F3X
+        _G.LockConnection = players.PlayerAdded:Connect(function(newPlayer)
+            kick(newPlayer)
+        end)
+    else
+        -- Notify that the server is now unlocked
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Server Unlocked",
+            Text = "New players can now join!",
+            Duration = 5
+        })
+
+        -- Stop kicking new players
+        if _G.LockConnection then
+            _G.LockConnection:Disconnect()
+            _G.LockConnection = nil
+        end
+    end
+end)
+
+cb("Kill Player", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("KillGui") then
+        playerGui:FindFirstChild("KillGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "KillGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Username, 'others', or 'all'"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Execute Kill"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    -- F3X Exploit Functions
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function kill(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            local character = target.Character
+            if character then
+                local head = character:FindFirstChild("Head")
+                local torso = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso")
+                if head then Delete(head, Tool) end
+                if torso then Delete(torso, Tool) end
+            end
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    -- Button Click Event
+    button.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+
+        if targetName == "all" then
+            for _, target in pairs(players:GetPlayers()) do kill(target) end
+        elseif targetName == "others" then
+            for _, target in pairs(players:GetPlayers()) do if target ~= player then kill(target) end end
+        else
+            for _, target in pairs(players:GetPlayers()) do
+                if target.Name:lower():sub(1, #targetName) == targetName then kill(target) end
+            end
+        end
+
+        screenGui:Destroy() -- Close GUI after execution
+    end)
+end)
+
+
+
+ cb("Fling Lock-On", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+
+    if not hrp then return end
+
+    for _, target in pairs(players:GetPlayers()) do
+        if target ~= player and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local targetHrp = target.Character.HumanoidRootPart
+            local humanoid = target.Character:FindFirstChild("Humanoid")
+
+            -- Attach yourself to the target
+            hrp.CFrame = targetHrp.CFrame
+            task.wait(0.1)
+
+            -- Create insane spinning & shaking loop
+            local flingLoop = game:GetService("RunService").Stepped:Connect(function()
+                if humanoid and humanoid.Health > 0 then
+                    -- Match target's position
+                    hrp.CFrame = targetHrp.CFrame 
+
+                    -- Violent micro shaking
+                    hrp.Position = hrp.Position + Vector3.new(
+                        math.random(-3, 3) * 0.05, 
+                        math.random(-3, 3) * 0.05, 
+                        math.random(-3, 3) * 0.05
+                    )
+
+                    -- Insane spinning
+                    hrp.CFrame = hrp.CFrame * CFrame.Angles(0, math.rad(9000), 0) 
+
+                    -- Extreme fling force
+                    local flingForce = Instance.new("BodyVelocity")
+                    flingForce.Velocity = Vector3.new(math.random(-2000, 2000), 2000, math.random(-2000, 2000))
+                    flingForce.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                    flingForce.Parent = targetHrp
+                end
+            end)
+
+            -- Wait for the player to die before stopping
+            while humanoid and humanoid.Health > 0 do
+                task.wait(0.05)
+            end
+
+            -- Stop fling loop
+            flingLoop:Disconnect()
+        end
+    end
+end)
+
+cb("del invo", function() local player = game.Players.LocalPlayer  
+local backpack = player:FindFirstChild("Backpack")  
+
+if backpack then  
+    for _, item in ipairs(backpack:GetChildren()) do  
+        if item:IsA("Tool") then  
+            item:Destroy()  
+        end  
+    end  
+end end)
+
+cb("Set Speed", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("SpeedGui") then
+        playerGui:FindFirstChild("SpeedGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "SpeedGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Enter Speed"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Set Speed"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    button.MouseButton1Click:Connect(function()
+        local speedValue = tonumber(textBox.Text)
+        if speedValue then
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = speedValue
+            end
+        end
+        screenGui:Destroy()
+    end)
+end)
+
+cb("Set Jump", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("JumpGui") then
+        playerGui:FindFirstChild("JumpGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "JumpGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Enter Jump Power"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Set Jump"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    button.MouseButton1Click:Connect(function()
+        local jumpValue = tonumber(textBox.Text)
+        if jumpValue then
+            local character = player.Character or player.CharacterAdded:Wait()
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = jumpValue
+            end
+        end
+        screenGui:Destroy()
+    end)
+end)
+
+cb("Go to", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("GoToGui") then
+        playerGui:FindFirstChild("GoToGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "GoToGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Enter Username or 'random'"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Execute Teleport"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    local function findClosestMatch(inputName)
+        inputName = inputName:lower()
+        for _, target in pairs(players:GetPlayers()) do
+            if target.Name:lower():sub(1, #inputName) == inputName then
+                return target
+            end
+        end
+        return nil
+    end
+
+    local function getRandomPlayer()
+        local playerList = {}
+        for _, target in pairs(players:GetPlayers()) do
+            if target ~= player then
+                table.insert(playerList, target)
+            end
+        end
+        return #playerList > 0 and playerList[math.random(1, #playerList)] or nil
+    end
+
+    local function teleportTo(target)
+        if not target or not target.Character then return end
+
+        local targetHrp = target.Character:FindFirstChild("HumanoidRootPart")
+        local myHrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+        if targetHrp and myHrp then
+            myHrp.CFrame = targetHrp.CFrame + Vector3.new(0, 2, 0) -- Teleport slightly above them
+        end
+    end
+
+    button.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+        local targetPlayer = targetName == "random" and getRandomPlayer() or findClosestMatch(targetName)
+
+        if targetPlayer then
+            teleportTo(targetPlayer)
+        end
+
+        screenGui:Destroy() -- Close GUI after execution
+    end)
+end)
+
+cb("F3X Auto-Kill", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+
+    _G.F3XKillEnabled = not _G.F3XKillEnabled
+
+    if _G.F3XKillEnabled then
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "F3X Auto-Kill",
+            Text = "Enabled - Killing non-friends with F3X",
+            Duration = 5
+        })
+
+        _G.F3XKillConnection = players.PlayerAdded:Connect(function(target)
+            task.wait(1) -- Give time for their character to load
+            if target ~= player and not player:IsFriendsWith(target.UserId) then
+                local character = target.Character or target.CharacterAdded:Wait()
+                local f3xTool = character:FindFirstChild("F3X") or target.Backpack:FindFirstChild("F3X")
+
+                if f3xTool then
+                    local Tool = player.Backpack:FindFirstChild("F3X") or player.Character:FindFirstChild("F3X")
+                    if Tool then
+                        local function Delete(instance)
+                            local remote = Tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction")
+                            if instance and remote then
+                                remote:InvokeServer("UndoRemove", {instance})
+                            end
+                        end
+
+                        local head = character:FindFirstChild("Head")
+                        local torso = character:FindFirstChild("HumanoidRootPart") or character:FindFirstChild("Torso")
+
+                        if head then Delete(head) end
+                        if torso then Delete(torso) end
+                    end
+                end
+            end
+        end)
+    else
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "F3X Auto-Kill",
+            Text = "Disabled",
+            Duration = 5
+        })
+
+        if _G.F3XKillConnection then
+            _G.F3XKillConnection:Disconnect()
+            _G.F3XKillConnection = nil
+        end
+    end
+end)
+
+cb("Lock Server (Friends Allowed)", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+
+    _G.ServerLocked = not _G.ServerLocked
+
+    -- Custom Kick Function
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function kick(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            Delete(target, Tool)
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    if _G.ServerLocked then
+        -- Notify that the server is locked
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Server Locked",
+            Text = "Only friends can join!",
+            Duration = 5
+        })
+
+        -- Kick new players who aren’t friends
+        _G.LockConnection = players.PlayerAdded:Connect(function(newPlayer)
+            task.wait(1) -- Give time for their character to load
+            if not player:IsFriendsWith(newPlayer.UserId) then
+                kick(newPlayer)
+            end
+        end)
+    else
+        -- Notify that the server is unlocked
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Server Unlocked",
+            Text = "Anyone can now join!",
+            Duration = 5
+        })
+
+        -- Stop kicking new players
+        if _G.LockConnection then
+            _G.LockConnection:Disconnect()
+            _G.LockConnection = nil
+        end
+    end
+end)
+
+cb("Kick Others (Except Friends)", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function kick(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            Delete(target, Tool)
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    for _, target in pairs(players:GetPlayers()) do
+        if target ~= player and not player:IsFriendsWith(target.UserId) then
+            kick(target)
+        end
+    end
+end)
+
+cb("Delete Island with all stuff", function()
+    local player = game.Players.LocalPlayer
+
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        if instance and tool then
+            local remote = tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction")
+            if remote then
+                remote:InvokeServer("UndoRemove", {instance})
+            end
+        end
+    end
+
+    local function ExecuteDeletion(targets)
+        local Tool = GetPath()
+        if Tool then
+            if Tool.Parent == player.Backpack then
+                Tool.Parent = player.Character
+                task.wait(0.1)
+                for _, target in pairs(targets) do
+                    if target then Delete(target, Tool) end
+                end
+                task.wait(0.1)
+                Tool.Parent = player.Backpack
+            else
+                for _, target in pairs(targets) do
+                    if target then Delete(target, Tool) end
+                end
+            end
+        end
+    end
+
+    -- List of all objects to delete
+    ExecuteDeletion({
+        -- Gearboards
+        workspace:FindFirstChild("made by FoxBin"),
+        workspace:FindFirstChild("made by FoxBin1"),
+        workspace:FindFirstChild("made byFoxBin MK2"),
+        workspace:FindFirstChild("made by FoxBinMK4"),
+        workspace:FindFirstChild("made by FoxBinMK6"),
+        -- Model Inserter
+        workspace:FindFirstChild("FoxBinMK5"),
+        -- F3X Giver
+        (function()
+            local SafePlate = workspace:FindFirstChild("SafePlate")
+            if SafePlate then
+                for _, v in pairs(SafePlate:GetDescendants()) do
+                    if v.Name == "Bricks" and v:FindFirstChild("Bar") then
+                        return v.Parent
+                    end
+                end
+            end
+        end)(),
+        -- Music Player
+        (function()
+            local MusicModel = workspace:FindFirstChild("FoxBin'sDjBoard")
+            return MusicModel and MusicModel:FindFirstChild("Brain")
+        end)(),
+        -- Safe Plate
+        workspace:FindFirstChild("SafePlate"),
+        workspace:FindFirstChild("AdGui"),
+        -- Gear Saves
+        workspace:FindFirstChild("GearBoardManagerModel"),
+        -- Xmas Parts
+        workspace:FindFirstChild("Xmas Parts"),
+        -- Bricks (Killbricks, Sky Changers, Island Shape Changers)
+        workspace:FindFirstChild("Bricks"),
+        -- Whole Island
+        workspace:FindFirstChild("Baseplate"),
+        workspace:FindFirstChild("Bricks"),
+        -- F3X Handle
+        (function()
+            local Tool = GetPath()
+            return Tool and Tool:FindFirstChild("Handle")
+        end)()
+    })
+end)
+
+cb("Disarm Player", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("DisarmGui") then
+        playerGui:FindFirstChild("DisarmGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "DisarmGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Enter Username"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Execute Disarm"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    -- F3X Exploit Functions
+    local function GetPath()
+        local ToolName = "F3X" or "Building Tools"
+        local Tool = player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+        return Tool
+    end
+
+    local function Delete(instance, tool)
+        tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction"):InvokeServer("UndoRemove", {instance})
+    end
+
+    local function disarm(target)
+        local Tool = GetPath()
+        if not Tool then return end
+
+        local function Task()
+            local character = target.Character
+            if character then
+                for _, part in pairs(character:GetChildren()) do
+                    if part:IsA("BasePart") and part.Name ~= "Head" and part.Name ~= "Torso" and part.Name ~= "HumanoidRootPart" then
+                        Delete(part, Tool)
+                    end
+                end
+            end
+        end
+
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            Task()
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        elseif Tool.Parent == player.Character then
+            Task()
+        end
+    end
+
+    -- Button Click Event
+    button.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+        for _, target in pairs(players:GetPlayers()) do
+            if target.Name:lower():sub(1, #targetName) == targetName then
+                disarm(target)
+            end
+        end
+
+        screenGui:Destroy() -- Close GUI after execution
+    end)
+end)
+
+cb("Ride Player", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("RideGui") then
+        playerGui:FindFirstChild("RideGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "RideGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 60)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Enter Username or 'random'"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local rideButton = Instance.new("TextButton", frame)
+    rideButton.Size = UDim2.new(0.9, 0, 0.3, 0)
+    rideButton.Position = UDim2.new(0.05, 0, 0.55, 0)
+    rideButton.Text = "Start Ride"
+    rideButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    rideButton.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    rideButton.Font = Enum.Font.GothamBold
+    rideButton.TextSize = 14
+
+    local rideButtonCorner = Instance.new("UICorner", rideButton)
+    rideButtonCorner.CornerRadius = UDim.new(0, 6)
+
+    local stopButton = Instance.new("TextButton", playerGui)
+    stopButton.Size = UDim2.new(0, 100, 0, 40)
+    stopButton.Position = UDim2.new(0.8, 0, 0.85, 0)
+    stopButton.Text = "Stop Ride"
+    stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    stopButton.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    stopButton.Font = Enum.Font.GothamBold
+    stopButton.TextSize = 14
+    stopButton.Visible = false
+
+    local stopButtonCorner = Instance.new("UICorner", stopButton)
+    stopButtonCorner.CornerRadius = UDim.new(0, 6)
+
+    local function findClosestMatch(inputName)
+        inputName = inputName:lower()
+        for _, target in pairs(players:GetPlayers()) do
+            if target.Name:lower():sub(1, #inputName) == inputName then
+                return target
+            end
+        end
+        return nil
+    end
+
+    local function getRandomPlayer()
+        local playerList = {}
+        for _, target in pairs(players:GetPlayers()) do
+            if target ~= player then
+                table.insert(playerList, target)
+            end
+        end
+        return #playerList > 0 and playerList[math.random(1, #playerList)] or nil
+    end
+
+    local rideLoop
+
+    local function ride(target)
+        if not target or not target.Character then return end
+
+        local targetTorso = target.Character:FindFirstChild("Torso") or target.Character:FindFirstChild("HumanoidRootPart")
+        local myHumanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+        local myHrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+        if targetTorso and myHumanoid and myHrp then
+            myHumanoid.Sit = true
+            myHrp.CFrame = targetTorso.CFrame * CFrame.new(0, 2, 0) -- Position above target
+
+            stopButton.Visible = true
+
+            rideLoop = game:GetService("RunService").Stepped:Connect(function()
+                if not target.Character or not target.Character:FindFirstChild("Torso") or not myHumanoid or not myHrp then
+                    rideLoop:Disconnect()
+                    stopButton.Visible = false
+                    return
+                end
+                myHumanoid.Sit = true -- Keep sitting
+                myHrp.CFrame = targetTorso.CFrame * CFrame.new(0, 2, 0)
+            end)
+        end
+    end
+
+    rideButton.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+        local targetPlayer = targetName == "random" and getRandomPlayer() or findClosestMatch(targetName)
+
+        if targetPlayer then
+            ride(targetPlayer)
+        end
+
+        screenGui:Destroy()
+    end)
+
+    stopButton.MouseButton1Click:Connect(function()
+        if rideLoop then
+            rideLoop:Disconnect()
+            stopButton.Visible = false
+        end
+    end)
+end)
+cb("Follow Player", function()
+    local player = game.Players.LocalPlayer
+    local players = game:GetService("Players")
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    if playerGui:FindFirstChild("FollowGui") then
+        playerGui:FindFirstChild("FollowGui"):Destroy()
+    end
+
+    local screenGui = Instance.new("ScreenGui", playerGui)
+    screenGui.Name = "FollowGui"
+
+    local frame = Instance.new("Frame", screenGui)
+    frame.Size = UDim2.new(0, 200, 0, 120)
+    frame.Position = UDim2.new(0.5, -100, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+    local frameCorner = Instance.new("UICorner", frame)
+    frameCorner.CornerRadius = UDim.new(0, 8)
+
+    local textBox = Instance.new("TextBox", frame)
+    textBox.Size = UDim2.new(0.9, 0, 0.3, 0)
+    textBox.Position = UDim2.new(0.05, 0, 0.1, 0)
+    textBox.PlaceholderText = "Enter Username or 'random'"
+    textBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    textBox.Font = Enum.Font.GothamBold
+    textBox.TextSize = 14
+
+    local textBoxCorner = Instance.new("UICorner", textBox)
+    textBoxCorner.CornerRadius = UDim.new(0, 6)
+
+    local button = Instance.new("TextButton", frame)
+    button.Size = UDim2.new(0.9, 0, 0.3, 0)
+    button.Position = UDim2.new(0.05, 0, 0.55, 0)
+    button.Text = "Execute Follow"
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.BackgroundColor3 = Color3.fromRGB(227, 20, 20)
+    button.Font = Enum.Font.GothamBold
+    button.TextSize = 14
+
+    local buttonCorner = Instance.new("UICorner", button)
+    buttonCorner.CornerRadius = UDim.new(0, 6)
+
+    local function findClosestMatch(inputName)
+        inputName = inputName:lower()
+        for _, target in pairs(players:GetPlayers()) do
+            if target.Name:lower():sub(1, #inputName) == inputName then
+                return target
+            end
+        end
+        return nil
+    end
+
+    local function getRandomPlayer()
+        local playerList = {}
+        for _, target in pairs(players:GetPlayers()) do
+            if target ~= player then
+                table.insert(playerList, target)
+            end
+        end
+        return #playerList > 0 and playerList[math.random(1, #playerList)] or nil
+    end
+
+    local function follow(target)
+        if not target or not target.Character then return end
+
+        local targetHrp = target.Character:FindFirstChild("HumanoidRootPart")
+        local myHrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+
+        if not targetHrp or not myHrp then return end
+
+        game:GetService("RunService").Stepped:Connect(function()
+            if target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                myHrp.CFrame = targetHrp.CFrame
+            end
+        end)
+    end
+
+    button.MouseButton1Click:Connect(function()
+        local targetName = textBox.Text:lower()
+        local targetPlayer = targetName == "random" and getRandomPlayer() or findClosestMatch(targetName)
+
+        if targetPlayer then
+            follow(targetPlayer)
+        end
+
+        screenGui:Destroy() -- Close GUI after execution
+    end)
+end)
+
+cb("Air Walk", function()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+
+    if not hrp then return end
+
+    _G.AirWalkEnabled = not _G.AirWalkEnabled
+
+    if _G.AirWalkEnabled then
+        -- Create the floating platform
+        if not _G.AirWalkPart then
+            local part = Instance.new("Part")
+            part.Size = Vector3.new(10, 1, 10)
+            part.Position = Vector3.new(hrp.Position.X, -500, hrp.Position.Z)
+            part.Anchored = true
+            part.CanCollide = true
+            part.Transparency = 0.5
+            part.BrickColor = BrickColor.new("Really black")
+            part.Parent = game.Workspace
+            _G.AirWalkPart = part
+        end
+
+        -- Keep the part following X and Z
+        _G.AirWalkConnection = game:GetService("RunService").RenderStepped:Connect(function()
+            if _G.AirWalkPart and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                _G.AirWalkPart.Position = Vector3.new(hrp.Position.X, -500, hrp.Position.Z)
+            end
+        end)
+
+        -- Ensure it persists after death
+        player.CharacterAdded:Connect(function(newCharacter)
+            hrp = newCharacter:WaitForChild("HumanoidRootPart")
+            _G.AirWalkPart.Position = Vector3.new(hrp.Position.X, -500, hrp.Position.Z)
+        end)
+    else
+        -- Disable Air Walk
+        if _G.AirWalkConnection then
+            _G.AirWalkConnection:Disconnect()
+            _G.AirWalkConnection = nil
+        end
+        if _G.AirWalkPart then
+            _G.AirWalkPart:Destroy()
+            _G.AirWalkPart = nil
+        end
+    end
+end)
+
+local function GetPath()
+    local player = game.Players.LocalPlayer
+    local ToolName = "F3X" or "Building Tools"
+    return player.Character:FindFirstChild(ToolName) or player.Backpack:FindFirstChild(ToolName)
+end
+
+local function Delete(instance, tool)
+    if instance and tool then
+        local remote = tool:FindFirstChildOfClass("BindableFunction"):FindFirstChildOfClass("RemoteFunction")
+        if remote then
+            remote:InvokeServer("UndoRemove", {instance})
+        end
+    end
+end
+
+local function ExecuteDeletion(targets)
+    local player = game.Players.LocalPlayer
+    local Tool = GetPath()
+
+    if Tool then
+        if Tool.Parent == player.Backpack then
+            Tool.Parent = player.Character
+            task.wait(0.1)
+            for _, target in pairs(targets) do
+                if target then Delete(target, Tool) end
+            end
+            task.wait(0.1)
+            Tool.Parent = player.Backpack
+        else
+            for _, target in pairs(targets) do
+                if target then Delete(target, Tool) end
+            end
+        end
+    end
+end
+
+-- DELETE BUTTONS
+cb("Remove Gearboards", function()
+    ExecuteDeletion({
+        workspace:FindFirstChild("made by FoxBin"),
+        workspace:FindFirstChild("made by FoxBin1"),
+        workspace:FindFirstChild("made byFoxBin MK2"),
+        workspace:FindFirstChild("made by FoxBinMK4"),
+        workspace:FindFirstChild("made by FoxBinMK6")
+    })
+end)
+
+cb("Remove ModelInserter", function()
+    ExecuteDeletion({workspace:FindFirstChild("FoxBinMK5")})
+end)
+
+cb("Remove F3X Giver", function()
+    local SafePlate = workspace:FindFirstChild("SafePlate")
+    local F3XGiver
+    if SafePlate then
+        for _, v in pairs(SafePlate:GetDescendants()) do
+            if v.Name == "Bricks" and v:FindFirstChild("Bar") then
+                F3XGiver = v.Parent
+            end
+        end
+    end
+    ExecuteDeletion({F3XGiver})
+end)
+
+cb("Remove MusicPlayer", function()
+    local MusicModel = workspace:FindFirstChild("FoxBin'sDjBoard")
+    local MusicPlayer = MusicModel and MusicModel:FindFirstChild("Brain")
+    ExecuteDeletion({MusicPlayer})
+end)
+
+cb("Remove SafePlate", function()
+    ExecuteDeletion({
+        workspace:FindFirstChild("SafePlate"),
+        workspace:FindFirstChild("AdGui")
+    })
+end)
+
+cb("Remove GearSaves", function()
+    ExecuteDeletion({workspace:FindFirstChild("GearBoardManagerModel")})
+end)
+
+cb("Remove Xmas Parts", function()
+    ExecuteDeletion({workspace:FindFirstChild("Xmas Parts")})
+end)
+
+cb("Remove Bricks", function()
+    ExecuteDeletion({workspace:FindFirstChild("Bricks")})
+end)
+
+cb("Remove Whole Island", function()
+    ExecuteDeletion({
+        workspace:FindFirstChild("Baseplate"),
+        workspace:FindFirstChild("Bricks")
+    })
+end)
+
+cb("Remove F3X Handle", function()
+    local player = game.Players.LocalPlayer
+    local Tool = GetPath()
+    if Tool then
+        local handle = Tool:FindFirstChild("Handle")
+        ExecuteDeletion({handle})
+    end
+end)
+
