@@ -20,3 +20,6 @@ bruh i on mobile and i cannot transfer data to pc bcuz big file and for me is 00
  let's just make script
 
  only reason i wanted to add u is to give u the lpi script i made so u can make your script better with more stuff
+
+
+ima upload it
