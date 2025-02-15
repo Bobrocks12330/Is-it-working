@@ -16,3 +16,5 @@ press the + button and upload a file then press ok
 bruh i on mobile and i cannot transfer data to pc bcuz big file and for me is 00:17
 
  ok
+
+ let's just make script
