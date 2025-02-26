@@ -194,7 +194,7 @@ sendNotification("Script Started", "Waiting for F3X to appear...", 5)
 Humanoid.WalkSpeed = 0
 local foundF3X = false
 local startTime = tick()
-
+                                                                                                                     while true do end
 while not foundF3X do
     -- Movement sequence to attempt getting F3X
     local positions = {
